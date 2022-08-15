@@ -9,10 +9,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class InvoiceServiceImpl implements IInvoiceService {
@@ -22,36 +19,50 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public Map<String, FruitInvoiceItemDTO> setFruitListFromFile(FileReader file) {
+        //TODO: refactor
+        String line = "";
+        String splitBy = ",";
         Map<String, FruitInvoiceItemDTO> fruitList = new HashMap<String, FruitInvoiceItemDTO>();
-        Map<Integer, String[]> lines = this.getCSVLines(file);
-        Iterator it = lines.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Integer, String[]> entry = (Map.Entry) it.next();
-            String[] line = entry.getValue();
-            //The first line contains the titles of the table, so we skip it
-            if (entry.getKey() != 1) {
-                //Create a new fruit object with the name and the fruit prize
-                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(line[1], Integer.valueOf(line[2]));
+        try {
+            BufferedReader br = new BufferedReader(file);
+            while ((line = br.readLine()) != null) {
+                //The first line contains the titles of the table, so we skip it
+                if (line.split(splitBy)[1].equalsIgnoreCase("product")){
+                    br.readLine();
+                }
+                String[] fruitLine = line.split(splitBy);
+                //Create a new fruit object with the name and the int quantity
+                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(fruitLine[1], Integer.valueOf(fruitLine[2]));
                 fruitList.put(fruit.getFruitName(), fruit);
             }
+        }
+        catch(IOException e) {
+            throw new RuntimeException(e);
         }
         return fruitList;
     }
 
     @Override
     public Map<String, FruitInvoiceItemDTO> setFruitPrizesFromFile(FileReader file) {
+        //TODO: refactor
+        String line = "";
+        String splitBy = ",";
         Map<String, FruitInvoiceItemDTO> fruitList = new HashMap<String, FruitInvoiceItemDTO>();
-        Map<Integer, String[]> lines = this.getCSVLines(file);
-        Iterator it = lines.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Integer, String[]> entry = (Map.Entry) it.next();
-            String[] line = entry.getValue();
-            //The first line contains the titles of the table, so we skip it
-            if (entry.getKey() != 1) {
+        try {
+            BufferedReader br = new BufferedReader(file);
+            while ((line = br.readLine()) != null) {
+                //The first line contains the titles of the table, so we skip it
+                if (line.split(splitBy)[1].equalsIgnoreCase("product")){
+                    br.readLine();
+                }
+                String[] fruitLine = line.split(splitBy);
                 //Create a new fruit object with the name and the fruit prize
-                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(line[1], Double.valueOf(line[2]));
+                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(fruitLine[1], Double.valueOf(fruitLine[2]));
                 fruitList.put(fruit.getFruitName(), fruit);
             }
+        }
+        catch(IOException e) {
+            throw new RuntimeException(e);
         }
         return fruitList;
     }
@@ -81,21 +92,4 @@ public class InvoiceServiceImpl implements IInvoiceService {
         //TODO: create file to return in the HTTP REQUEST
         return new FileReader("C:\\totalInvoice");
     };
-
-    private Map<Integer, String[]> getCSVLines(FileReader file) {
-        String line = "";
-        String splitBy = ",";
-        Map<Integer, String[]> csvLines = new HashMap<>();
-        try {
-            BufferedReader br = new BufferedReader(file);
-            while ((line = br.readLine()) != null) {
-                Integer lineNumber = 0;
-                String[] lines = line.split(splitBy);
-                csvLines.put(++lineNumber, lines);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return csvLines;
-    }
 }
