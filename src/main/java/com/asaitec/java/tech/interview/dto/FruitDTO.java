@@ -5,6 +5,9 @@ import lombok.Data;
 @Data
 public class FruitDTO {
 
+    /* The id */
+    private Long id;
+
     /* The name of the fruit */
     private String name;
 

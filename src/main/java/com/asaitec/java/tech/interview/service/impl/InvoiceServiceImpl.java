@@ -1,5 +1,6 @@
 package com.asaitec.java.tech.interview.service.impl;
 
+import com.asaitec.java.tech.interview.dto.FruitDTO;
 import com.asaitec.java.tech.interview.dto.FruitInvoiceItemDTO;
 import com.asaitec.java.tech.interview.service.IInvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,8 @@ public class InvoiceServiceImpl implements IInvoiceService {
     OfferServiceImpl offerService;
 
     @Override
-    public Map<String, FruitInvoiceItemDTO> setFruitListFromFile(FileReader file) {
-        Map<String, FruitInvoiceItemDTO> fruitList = new HashMap<String, FruitInvoiceItemDTO>();
+    public Map<FruitDTO, FruitInvoiceItemDTO> setFruitListFromFile(FileReader file) {
+        Map<FruitDTO, FruitInvoiceItemDTO> fruitList = new HashMap<FruitDTO, FruitInvoiceItemDTO>();
         Map<Integer, String[]> lines = this.getCSVLines(file);
         Iterator it = lines.entrySet().iterator();
         while (it.hasNext()) {
@@ -31,16 +32,17 @@ public class InvoiceServiceImpl implements IInvoiceService {
             //The first line contains the titles of the table, so we skip it
             if (entry.getKey() != 1) {
                 //Create a new fruit object with the name and the fruit prize
-                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(line[1], Integer.valueOf(line[2]));
-                fruitList.put(fruit.getFruitName(), fruit);
+                FruitDTO fruit = new FruitDTO(line[1]);
+                FruitInvoiceItemDTO fruitInvoiceItem = new FruitInvoiceItemDTO(fruit, Integer.valueOf(line[2]));
+                fruitList.put(fruit, fruitInvoiceItem);
             }
         }
         return fruitList;
     }
 
     @Override
-    public Map<String, FruitInvoiceItemDTO> setFruitPrizesFromFile(FileReader file) {
-        Map<String, FruitInvoiceItemDTO> fruitList = new HashMap<String, FruitInvoiceItemDTO>();
+    public Map<FruitDTO, FruitInvoiceItemDTO> setFruitPrizesFromFile(FileReader file) {
+        Map<FruitDTO, FruitInvoiceItemDTO> fruitList = new HashMap<FruitDTO, FruitInvoiceItemDTO>();
         Map<Integer, String[]> lines = this.getCSVLines(file);
         Iterator it = lines.entrySet().iterator();
         while (it.hasNext()) {
@@ -49,8 +51,9 @@ public class InvoiceServiceImpl implements IInvoiceService {
             //The first line contains the titles of the table, so we skip it
             if (entry.getKey() != 1) {
                 //Create a new fruit object with the name and the fruit prize
-                FruitInvoiceItemDTO fruit = new FruitInvoiceItemDTO(line[1], Double.valueOf(line[2]));
-                fruitList.put(fruit.getFruitName(), fruit);
+                FruitDTO fruit = new FruitDTO(line[1]);
+                FruitInvoiceItemDTO fruitInvoiceItem = new FruitInvoiceItemDTO(fruit, Integer.valueOf(line[2]));
+                fruitList.put(fruit, fruitInvoiceItem);
             }
         }
         return fruitList;
@@ -58,13 +61,13 @@ public class InvoiceServiceImpl implements IInvoiceService {
 
     @Override
     public FileReader createInvoice() throws FileNotFoundException {
-        Map<String, FruitInvoiceItemDTO> orderList = new HashMap<String, FruitInvoiceItemDTO>();
+        Map<FruitDTO, FruitInvoiceItemDTO> orderList = new HashMap<FruitDTO, FruitInvoiceItemDTO>();
         try {
             //Mocking the file location
             FileReader prizesFile = new FileReader("C:\\fruitPrice.csv");
             FileReader orderFile = new FileReader("C:\\fruitOrder.csv");
-            Map<String, FruitInvoiceItemDTO> prizes = setFruitPrizesFromFile(prizesFile);
-            Map<String, FruitInvoiceItemDTO> quantities = setFruitListFromFile(orderFile);
+            Map<FruitDTO, FruitInvoiceItemDTO> prizes = setFruitPrizesFromFile(prizesFile);
+            Map<FruitDTO, FruitInvoiceItemDTO> quantities = setFruitListFromFile(orderFile);
             orderList.putAll(prizes);
             Iterator it = orderList.entrySet().iterator();
             while (it.hasNext()) {

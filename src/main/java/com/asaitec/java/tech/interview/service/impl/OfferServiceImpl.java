@@ -1,5 +1,6 @@
 package com.asaitec.java.tech.interview.service.impl;
 
+import com.asaitec.java.tech.interview.constants.FruitIdConstants;
 import com.asaitec.java.tech.interview.dto.FruitDTO;
 import com.asaitec.java.tech.interview.dto.FruitInvoiceItemDTO;
 import com.asaitec.java.tech.interview.dto.OfferDTO;
@@ -20,20 +21,20 @@ public class OfferServiceImpl implements IOfferService {
 
 
     @Override
-    public OfferDTO getTotalOffer(Map<String, FruitInvoiceItemDTO> fruitList) {
+    public OfferDTO getTotalOffer(Map<FruitDTO, FruitInvoiceItemDTO> fruitList) {
         OfferDTO offerDTO = new OfferDTO();
         Iterator it = fruitList.entrySet().iterator();
         while(it.hasNext()){
-            Map.Entry<String, FruitInvoiceItemDTO> entry = (Map.Entry)it.next();
-            String fruitName = entry.getKey();
-            FruitInvoiceItemDTO fruit = entry.getValue();
-            switch (fruitName){
-                case "Apple":
-                    offerDTO.fruitList.addAll(getAppleDiscount(fruit.getQuantity()));
+            Map.Entry<FruitDTO, FruitInvoiceItemDTO> entry = (Map.Entry)it.next();
+            FruitInvoiceItemDTO fruitInvoiceItem = entry.getValue();
+            FruitDTO fruit = entry.getKey();
+            switch (fruit.getId().intValue()){
+                case FruitIdConstants.APPLE_ID:
+                    offerDTO.fruitList.addAll(getAppleDiscount(fruitInvoiceItem.getQuantity()));
                     break;
-                case "Pear":
-                    offerDTO.discount = getPearDiscount(fruit.getQuantity(), fruit.getUnitPrize());
-                    offerDTO.fruitList.addAll(getFruitOfferbyPear(fruit.getQuantity()));
+                case FruitIdConstants.PEAR_ID:
+                    offerDTO.discount = getPearDiscount(fruitInvoiceItem.getQuantity(), fruit.getUnitPrice());
+                    offerDTO.fruitList.addAll(getFruitOfferbyPear(fruitInvoiceItem.getQuantity()));
                     break;
                 default:
                     throw new FruitOfferException("This fruit has any offer.");
